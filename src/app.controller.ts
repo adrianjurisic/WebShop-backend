@@ -8,8 +8,4 @@ export class AppController {
     return 'Hello World!';
   }
 
-  @Get('world')
-  getWorld(): string {
-    return 'World';
-  }
 }
