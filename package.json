@@ -27,7 +27,8 @@
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "typeorm-model-generator": "^0.4.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
