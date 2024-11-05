@@ -1,6 +1,7 @@
-import {Column,Entity,Index,JoinColumn,ManyToOne,OneToMany,PrimaryGeneratedColumn} from "typeorm";
+import {Column,Entity,Index,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,PrimaryGeneratedColumn} from "typeorm";
 import { ArticleFeature } from "./article-features.entity";
 import { Category } from "./category.entity";
+import { Article } from "./article.entity";
 
 @Index("feature_category_FK", ["categoryId"], {})
 @Index("feature_name_IDX", ["name", "categoryId"], { unique: true })
@@ -28,6 +29,14 @@ export class Feature {
     (articleFeature) => articleFeature.feature
   )
   articleFeatures: ArticleFeature[];
+
+  @ManyToMany(type => Article, article => article.features)
+  @JoinTable({
+    name: "article_feature",
+    joinColumn: {name: "feature_id", referencedColumnName: "featureId"},
+    inverseJoinColumn: {name: "article_id", referencedColumnName: "articleId"}
+  })
+  articles: Article[];
 
   @ManyToOne(
     () => Category, 
