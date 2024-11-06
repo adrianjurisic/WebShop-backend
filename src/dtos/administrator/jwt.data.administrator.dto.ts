@@ -11,7 +11,7 @@ export class JwtDataAdministratorDto{
             username: this.username,
             ext: this.ext,
             ip: this.ip,
-            us: this.ua
+            ua: this.ua
         }
     }
 }
