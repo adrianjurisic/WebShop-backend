@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { Article } from "entities/article.entity";
-import { AddArticleDto } from "src/dtos/article/add.article";
-import { EditArticleDto } from "src/dtos/article/edit.article";
+import { AddArticleDto } from "src/dtos/article/add.article.dto";
+import { EditArticleDto } from "src/dtos/article/edit.article.dto";
 import { ApiResponse } from "src/misc/api.response.class";
 import { ArticleService } from "src/services/article/article.service";
 
@@ -22,9 +22,9 @@ export class ArticleController{
         return this.articleService.getById(articleId);
     }
 
-    @Put()
-    add(@Body() data: AddArticleDto): Promise<Article | ApiResponse>{
-        return this.articleService.add(data);
+    @Post('createFull')
+    createFullArticle(@Body() data: AddArticleDto): Promise<Article | ApiResponse>{
+        return this.articleService.createFullArticle(data);
     }
 
     @Post(':id')

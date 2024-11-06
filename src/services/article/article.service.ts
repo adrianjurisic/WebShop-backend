@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TypeOrmCrudService } from "@nestjsx/crud-typeorm";
+import { ArticleFeature } from "entities/article-features.entity";
+import { ArticlePrice } from "entities/article-price.entity";
 import { Article } from "entities/article.entity";
-import { AddArticleDto } from "src/dtos/article/add.article";
-import { EditArticleDto } from "src/dtos/article/edit.article";
+import { AddArticleDto } from "src/dtos/article/add.article.dto";
+import { EditArticleDto } from "src/dtos/article/edit.article.dto";
 import { ApiResponse } from "src/misc/api.response.class";
 import { Repository } from "typeorm";
 
@@ -11,7 +13,13 @@ import { Repository } from "typeorm";
 export class ArticleService{
     constructor ( 
         @InjectRepository(Article)
-        private readonly article: Repository<Article> // !!! navesti u app.module.ts
+        private readonly article: Repository<Article>, // !!! navesti u app.module.ts
+
+        @InjectRepository(Article)
+        private readonly articlePrice: Repository<ArticlePrice>,
+
+        @InjectRepository(Article)
+        private readonly articleFeature: Repository<ArticleFeature>
     ){}
 
     getAll(): Promise<Article[]>{
@@ -34,25 +42,32 @@ export class ArticleService{
         });
     }
 
-    add(data: AddArticleDto): Promise<Article | ApiResponse>{
+    async createFullArticle(data: AddArticleDto): Promise<Article | ApiResponse> {
         let newArticle: Article = new Article();
-        
         newArticle.name = data.name;
         newArticle.categoryId = data.categoryId;
         newArticle.excerpt = data.excerpt;
-        newArticle.description = data.excerpt;
-        newArticle.status = data.status;
-        newArticle.isPromoted = data.isPromoted;
+        newArticle.description = data.description;
 
+        let savedArticle = await this.article.save(newArticle);
 
-        return new Promise((resolve)=>{
-            this.article.save(newArticle)
-            .then(data => resolve(data))
-            .catch(error => {
-                const response: ApiResponse = new ApiResponse ("error", -1002);
-                resolve(response);
-            })
-        })
+        let newArticlePrice: ArticlePrice = new ArticlePrice();
+        newArticlePrice.articleId = savedArticle.articleId;
+        newArticlePrice.price = data.price;
+        await this.articlePrice.save(newArticlePrice);
+
+        for(let feature of data.features){
+            let newArticleFeature: ArticleFeature = new ArticleFeature;
+            newArticleFeature.articleId = savedArticle.articleId;
+            newArticleFeature.featureId = feature.featureId;
+            newArticleFeature.value = feature.value;
+
+            await this.articleFeature.save(newArticleFeature);
+        }
+
+        let id = savedArticle.articleId;
+        return savedArticle;
+
     }
 
     async editById(articleId: number, data: EditArticleDto): Promise <Article | ApiResponse> {
