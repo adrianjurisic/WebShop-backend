@@ -38,7 +38,8 @@ export class ArticleService{
             });
         }
         return this.article.findOne({
-            where: {articleId}
+            where: {articleId},
+            relations: {category: true, photos: true, articlePrices: true, articleFeatures: true, features: true}
         });
     }
 

@@ -20,6 +20,7 @@ export class Photo {
   @Column({ 
     type: "varchar", 
     name: "image_path", 
+    nullable: true,
     unique: true, 
     length: 128 })
   imagePath: string;
@@ -28,7 +29,7 @@ export class Photo {
     () => Article, 
     (article) => article.photos, {
     onDelete: "RESTRICT",
-    onUpdate: "CASCADE",
+    onUpdate: "CASCADE", 
   })
   @JoinColumn([{ name: "article_id", referencedColumnName: "articleId" }])
   article: Article;
