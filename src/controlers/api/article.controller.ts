@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Req, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Article } from "entities/article.entity";
 import { AddArticleDto } from "src/dtos/article/add.article.dto";
@@ -9,6 +9,9 @@ import { diskStorage } from 'multer';
 import { StorageConfig } from "config/storage.config";
 import { PhotoService } from "src/services/photo/photo.service";
 import { Photo } from "entities/photo.entity";
+import * as fileType from 'file-type';
+import * as fs from 'fs';
+import * as sharp from 'sharp';
 
 
 @Controller('api/article')
@@ -66,23 +69,48 @@ export class ArticleController{
             }),
             fileFilter: (req, file, callback) => {
                 if(!file.originalname.toLowerCase().match(/\.(jpg|png)$/)){
-                    callback(new Error('Bad file extensions!'), false);
+                    req.fileFilterError = 'Bad file extension!'
+                    callback(null, false);
                     return;
                 }
                 if(!(file.mimetype.includes('jpeg') || file.mimetype.includes('png'))){
-                    callback(new Error('Bad file content!'), false);
+                    req.fileFilterError = 'Bad file content!'
+                    callback(null, false);
                     return;
                 }
                 callback(null, true);
             },
             limits:{
                 files: 1,
-                fieldSize: StorageConfig.photoMaxFileSize,
+                fileSize: StorageConfig.photoMaxFileSize,
             },
         })
     )
 
-    async uploadPhoto(@Param('id') articleId: number, @UploadedFile() photo): Promise <Photo | ApiResponse>{
+    async uploadPhoto(@Param('id') articleId: number, @UploadedFile() photo, @Req() req): Promise <Photo | ApiResponse>{
+        if(req.fileFilterError){
+            return new ApiResponse('error', -4002, req.fileFilterError);
+        }
+
+        if(!photo) {
+            return new ApiResponse('error', -4002, 'File not uploaded!');
+        }
+
+        const fileTypeResult = await fileType.fromFile(photo.path);
+        if(!fileTypeResult){
+            fs.unlinkSync(photo.path);
+            return new ApiResponse('error', -4002, 'Can not detect file type!');
+        }
+
+        const realMimeType = fileTypeResult.mime;
+        if(!(realMimeType.includes('jpeg') || realMimeType.includes('png'))){
+            fs.unlinkSync(photo.path);
+            return new ApiResponse('error', -4002, 'Bad file content type!');
+        }
+
+        await this.createThumb(photo);
+        await this.createSmallImage(photo);
+        
         const newPhoto: Photo = new Photo();
         newPhoto.articleId = articleId;
         newPhoto.imagePath = photo.filename;
@@ -93,5 +121,39 @@ export class ArticleController{
         }
 
         return savedPhoto;
+    }
+
+    async createThumb(photo){
+        const originalFilePath = photo.path;
+        const fileName = photo.filename;
+
+        const destinationFilePath = StorageConfig.photosDestination + "thumb/" + fileName;
+        await sharp(originalFilePath)
+            .resize({
+                fit: 'cover',
+                width: StorageConfig.photoThumbSize.width,
+                height: StorageConfig.photoThumbSize.height,
+                background: {
+                    r:255, g:255, b:255, alpha: 0.0
+                }
+            })
+            .toFile(destinationFilePath)
+    }
+
+    async createSmallImage(photo){
+        const originalFilePath = photo.path;
+        const fileName = photo.filename;
+
+        const destinationFilePath = StorageConfig.photosDestination + "small/" + fileName;
+        await sharp(originalFilePath)
+            .resize({
+                fit: 'cover',
+                width: StorageConfig.photoSmallSize.width,
+                height: StorageConfig.photoSmallSize.height,
+                background: {
+                    r:255, g:255, b:255, alpha: 0.0
+                }
+            })
+            .toFile(destinationFilePath)
     }
 }
