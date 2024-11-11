@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { error } from 'console';
-import { Administrator } from 'entities/administrator.entity';
+import { Administrator } from 'src/entities/administrator.entity';
 import { resolve } from 'path';
 import { identity } from 'rxjs';
 import { AddAdministratorDto } from 'src/dtos/administrator/add.administrator.dto';
