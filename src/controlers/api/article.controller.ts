@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Article } from "src/entities/article.entity";
 import { AddArticleDto } from "src/dtos/article/add.article.dto";
@@ -34,6 +34,11 @@ export class ArticleController{
     @Post('createFull')
     createFullArticle(@Body() data: AddArticleDto): Promise<Article | ApiResponse>{
         return this.articleService.createFullArticle(data);
+    }
+
+    @Patch(':id')
+    editFullArticle(@Param('id') articleId: number, @Body() data: EditArticleDto){
+        return this.articleService.editFullArticle(articleId, data);
     }
 
     @Post(':id')
