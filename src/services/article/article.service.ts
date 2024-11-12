@@ -15,10 +15,10 @@ export class ArticleService{
         @InjectRepository(Article)
         private readonly article: Repository<Article>, // !!! navesti u app.module.ts
 
-        @InjectRepository(Article)
+        @InjectRepository(ArticlePrice)
         private readonly articlePrice: Repository<ArticlePrice>,
 
-        @InjectRepository(Article)
+        @InjectRepository(ArticleFeature)
         private readonly articleFeature: Repository<ArticleFeature>
     ){}
 
@@ -90,6 +90,7 @@ export class ArticleService{
     }
 
 
+
     async editFullArticle(articleId: number, data: EditArticleDto): Promise<Article | ApiResponse>{
         const existingArticle: Article = await this.article.findOne({where: {articleId}, relations:['articlePrices', 'articleFeatures']});
         if (!existingArticle){
@@ -107,10 +108,10 @@ export class ArticleService{
         if(!savedArticle){
             return new ApiResponse('error', -5002, 'Could not save the article data!');
         }
-/*
+
         const newPriceString: string = Number(data.price).toFixed(2);
         const newArticlePrice = new ArticlePrice();
-        newArticlePrice.articleId = articleId;                
+        newArticlePrice.articleId = articleId;              
         newArticlePrice.price = data.price;
         if(existingArticle.articlePrices.length !== 0){
             const lastPrice = existingArticle.articlePrices[existingArticle.articlePrices.length - 1].price;
@@ -127,7 +128,6 @@ export class ArticleService{
                 return new ApiResponse('error', -5002, 'Could not save new article price!');
             }
         }
-*/      
 
         if(data.features !== null){
             await this.articleFeature.remove(existingArticle.articleFeatures);
