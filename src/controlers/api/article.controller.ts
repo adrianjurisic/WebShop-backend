@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Article } from "src/entities/article.entity";
 import { AddArticleDto } from "src/dtos/article/add.article.dto";
@@ -12,6 +12,8 @@ import { Photo } from "src/entities/photo.entity";
 import * as fileType from 'file-type';
 import * as fs from 'fs';
 import * as sharp from 'sharp';
+import { RoleCheckedGuard } from "src/misc/role.checker.guard";
+import { AllowToRoles } from "src/misc/allow.to.roles.descriptor";
 
 
 @Controller('api/article')
@@ -32,21 +34,29 @@ export class ArticleController{
     }
 
     @Post('createFull')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
     createFullArticle(@Body() data: AddArticleDto): Promise<Article | ApiResponse>{
         return this.articleService.createFullArticle(data);
     }
 
     @Patch(':id')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
     editFullArticle(@Param('id') articleId: number, @Body() data: EditArticleDto){
         return this.articleService.editFullArticle(articleId, data);
     }
 
     @Post(':id')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
     edit(@Param('id') articleId: number, @Body() data: EditArticleDto): Promise<Article | ApiResponse>{
         return this.articleService.editById(articleId, data);
     }
 
     @Post(':id/uploadPhoto/') // POST http://localhost:3000/api/article/:id/uploadPhoto/
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
     @UseInterceptors(
         FileInterceptor('photo', {
             storage: diskStorage({
@@ -145,8 +155,10 @@ export class ArticleController{
             .toFile(destinationFilePath)
     }
 
-    // http://localhost:3000/api/article/1/deletePhoto/11/
-    @Delete(':articleId/deletePhoto/:photoId')
+
+    @Delete(':articleId/deletePhoto/:photoId') // http://localhost:3000/api/article/1/deletePhoto/11/
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
     public async deletePhoto(
         @Param('articleId') articleId: number,
         @Param('photoId') photoId: number,
