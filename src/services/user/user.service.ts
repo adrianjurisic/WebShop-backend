@@ -27,6 +27,14 @@ export class UserService{
         return this.user.findOne({where: {userId}});
     }
 
+    async getByEmail(email: string): Promise<User | null>{
+        let user: User = await this.user.findOne({where: {email: email}});
+        if(user){
+            return user;
+        }
+        return null;
+    }
+
     async register(data: UserRegistrationDto): Promise<User | ApiResponse>{
         const crypto = require('crypto');
         const passwordHash = crypto.createHash('sha512');
