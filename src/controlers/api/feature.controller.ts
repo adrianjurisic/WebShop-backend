@@ -33,3 +33,7 @@ export class FeatureController{
         return this.featureService.editById(featureId, data);
     }
 }
+
+
+    // TODO: Kreirati RoleCheckedGuard za odredjene funkcije
+    //       na mjestima gdje treba da se nalaze

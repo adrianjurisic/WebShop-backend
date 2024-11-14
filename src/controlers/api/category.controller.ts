@@ -31,4 +31,7 @@ export class CategoryController{
     edit(@Param('id') categoryId: number, @Body() data: EditCategoryDto): Promise<Category | ApiResponse>{
         return this.categoryService.editById(categoryId, data);
     }
+
+    // TODO: Kreirati RoleCheckedGuard za odredjene funkcije
+    //       na mjestima gdje treba da se nalaze
 }

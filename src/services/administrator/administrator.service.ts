@@ -71,7 +71,6 @@ export class AdministratorService {
                 resolve(new ApiResponse("error", -1002));
             });
         }
-
         const crypto = require('crypto');
         const passwordHash = crypto.createHash('sha512');
         passwordHash.update(data.password);

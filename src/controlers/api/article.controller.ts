@@ -23,16 +23,19 @@ export class ArticleController{
         public photoService: PhotoService
     ) {}
 
+    // GET http://localhost.3000/api/article/
     @Get()
     getAll(): Promise<Article[]>{
         return this.articleService.getAll();
     }
 
+    // GET http://localhost.3000/api/article/4/
     @Get(':id')
     getById(@Param('id') articleId: number): Promise <Article | ApiResponse>{
         return this.articleService.getById(articleId);
     }
 
+    // POST http://localhost.3000/api/article/4/
     @Post('createFull')
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator')
@@ -40,6 +43,7 @@ export class ArticleController{
         return this.articleService.createFullArticle(data);
     }
 
+    // PATCH http://localhost.3000/api/article/4/
     @Patch(':id')
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator')
@@ -47,6 +51,7 @@ export class ArticleController{
         return this.articleService.editFullArticle(articleId, data);
     }
 
+    // POST http://localhost.3000/api/article/4/
     @Post(':id')
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator')
@@ -54,7 +59,8 @@ export class ArticleController{
         return this.articleService.editById(articleId, data);
     }
 
-    @Post(':id/uploadPhoto/') // POST http://localhost:3000/api/article/:id/uploadPhoto/
+    // POST http://localhost:3000/api/article/:id/uploadPhoto/
+    @Post(':id/uploadPhoto/') 
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator')
     @UseInterceptors(
@@ -155,8 +161,8 @@ export class ArticleController{
             .toFile(destinationFilePath)
     }
 
-
-    @Delete(':articleId/deletePhoto/:photoId') // http://localhost:3000/api/article/1/deletePhoto/11/
+    // http://localhost:3000/api/article/1/deletePhoto/11/
+    @Delete(':articleId/deletePhoto/:photoId') 
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator')
     public async deletePhoto(

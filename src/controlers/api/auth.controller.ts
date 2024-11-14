@@ -19,7 +19,8 @@ export class AuthController{
         public userService: UserService
     ){}
 
-    @Post('administrator/login') // http://localhost:3000/auth/administrator/login
+    // http://localhost:3000/auth/administrator/login
+    @Post('administrator/login') 
     async doAdministratorLogin(@Body() data: LoginAdministratorDto, @Req() req: Request): Promise <LoginInfoDto | ApiResponse>{
         const administrator = await this.administratorService.getByUsername(data.username);
 
@@ -61,12 +62,14 @@ export class AuthController{
         return new Promise(resolve => resolve(responseObject));
     }
 
-    @Put('user/register') // PUT http://localhost:3000/auth/user/register
+    // PUT http://localhost:3000/auth/user/register
+    @Put('user/register') 
     async userRegister(@Body() data: UserRegistrationDto){
         return await this.userService.register(data);
     }
 
-    @Post('user/login') // http://localhost:3000/auth/user/login
+    // POST http://localhost:3000/auth/user/login
+    @Post('user/login') 
     async doUserLogin(@Body() data: LoginUserDto, @Req() req: Request): Promise <LoginInfoDto | ApiResponse>{
         const user = await this.userService.getByEmail(data.email);
 
