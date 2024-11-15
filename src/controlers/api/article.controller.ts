@@ -25,12 +25,16 @@ export class ArticleController{
 
     // GET http://localhost.3000/api/article/
     @Get()
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator', 'user')
     getAll(): Promise<Article[]>{
         return this.articleService.getAll();
     }
 
     // GET http://localhost.3000/api/article/4/
     @Get(':id')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator', 'user')
     getById(@Param('id') articleId: number): Promise <Article | ApiResponse>{
         return this.articleService.getById(articleId);
     }
@@ -192,5 +196,4 @@ export class ArticleController{
 
         return new ApiResponse('ok', 200, 'One photo deleted!');
     }
-
 }
