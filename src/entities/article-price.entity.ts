@@ -1,5 +1,6 @@
 import {Column,Entity,Index,JoinColumn,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
 import { Article } from "./article.entity";
+import * as Validator from 'class-validator';
 
 @Index("article_price_article_FK", ["articleId"], {})
 @Entity("article_price")
@@ -21,7 +22,15 @@ export class ArticlePrice {
     type: "decimal", 
     name: "price", 
     precision: 10, 
-    scale: 2 })
+    scale: 2 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsPositive()
+  @Validator.IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 2
+  })
   price: number;
 
   @Column({

@@ -2,6 +2,7 @@ import {Column,Entity,Index,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,
 import { ArticleFeature } from "./article-features.entity";
 import { Category } from "./category.entity";
 import { Article } from "./article.entity";
+import * as Validator from 'class-validator';
 
 @Index("feature_category_FK", ["categoryId"], {})
 @Index("feature_name_IDX", ["name", "categoryId"], { unique: true })
@@ -15,7 +16,11 @@ export class Feature {
 
   @Column({
     type: "varchar",
-    length: 32 })
+    length: 32 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(5, 32)
   name: string;
 
   @Column({

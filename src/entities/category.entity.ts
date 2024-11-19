@@ -1,6 +1,7 @@
 import {Column,Entity,Index,JoinColumn,ManyToOne,OneToMany,PrimaryGeneratedColumn} from "typeorm";
 import { Article } from "./article.entity";
 import { Feature } from "./feature.entity";
+import * as Validator from 'class-validator';
 
 @Index("category_category_FK", ["parentCategoryId"], {})
 @Index("category_image_path_IDX", ["imagePath"], { unique: true })
@@ -16,7 +17,11 @@ export class Category {
   @Column({
     type: "varchar",
     unique: true, 
-    length: 32 })
+    length: 32
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(5, 32)
   name: string;
 
   @Column({
@@ -25,6 +30,9 @@ export class Category {
     unique: true,
     length: 128,
   })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(1, 128)
   imagePath: string;
 
   @Column({

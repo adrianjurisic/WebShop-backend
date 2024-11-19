@@ -1,6 +1,7 @@
 import {Column,Entity,Index,JoinColumn,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
 import { Article } from "./article.entity";
 import { Cart } from "./cart.entity";
+import * as Validator from 'class-validator';
 
 @Index("cart_article_article_id_IDX", ["articleId", "cartId"], { unique: true })
 @Index("cart_article_cart_FK", ["cartId"], {})
@@ -27,7 +28,15 @@ export class CartArticle {
 
   @Column({ 
     type: "int", 
-    unsigned: true })
+    unsigned: true 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsPositive()
+  @Validator.IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0
+  })
   quantity: number;
 
   @ManyToOne(

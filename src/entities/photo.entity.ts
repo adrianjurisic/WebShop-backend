@@ -1,5 +1,6 @@
 import {Column,Entity,Index,JoinColumn,ManyToOne,PrimaryGeneratedColumn} from "typeorm";
 import { Article } from "./article.entity";
+import * as Validator from 'class-validator';
 
 @Index("photo_article_FK", ["articleId"], {})
 @Index("photo_image_path_IDX", ["imagePath"], { unique: true })
@@ -22,7 +23,11 @@ export class Photo {
     name: "image_path", 
     nullable: true,
     unique: true, 
-    length: 128 })
+    length: 128 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(1, 128)
   imagePath: string;
 
   @ManyToOne(

@@ -5,7 +5,7 @@ import { ArticlePrice } from "./article-price.entity";
 import { CartArticle } from "./cart-article.entity";
 import { Photo } from "./photo.entity";
 import { Feature } from "./feature.entity";
-import { features } from "process";
+import * as Validator from 'class-validator';
 
 @Index("article_category_FK", ["categoryId"], {})
 @Entity("article")
@@ -18,7 +18,11 @@ export class Article {
 
   @Column({ 
     type: "varchar", 
-    length: 128 })
+    length: 128 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(5, 128)
   name: string;
 
   @Column({ 
@@ -29,11 +33,19 @@ export class Article {
 
   @Column({ 
     type: "varchar",
-    length: 255 })
+    length: 255 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(5, 255)
   excerpt: string;
 
   @Column({ 
-    type: "text"})
+    type: "text"
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.Length(64, 10000)
   description: string;
 
   @Column({
@@ -41,12 +53,18 @@ export class Article {
     enum: ["available", "visible", "hidden"],
     default: () => "available",
   })
+  @Validator.IsNotEmpty()
+  @Validator.IsString()
+  @Validator.IsIn(["available", "visible", "hidden"])
   status: "available" | "visible" | "hidden";
 
   @Column({ 
     type: "tinyint",
     name: "is_promoted", 
-    unsigned: true })
+    unsigned: true 
+  })
+  @Validator.IsNotEmpty()
+  @Validator.IsIn([0, 1])
   isPromoted: number;
 
   @Column({
