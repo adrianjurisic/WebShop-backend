@@ -82,7 +82,8 @@ export class CartService {
                 "user",
                 "cartArticles",
                 "cartArticles.article",
-                "cartArticles.article.category"
+                "cartArticles.article.category",
+                "cartArticles.article.articlePrices",
             ],
         });
     }
