@@ -8,6 +8,7 @@ import { AddArticleDto } from "src/dtos/article/add.article.dto";
 import { EditArticleDto } from "src/dtos/article/edit.article.dto";
 import { ApiResponse } from "src/misc/api.response.class";
 import { Repository } from "typeorm";
+import { ArticleSearchDto } from "src/dtos/article/article.search.dto";
 
 @Injectable()
 export class ArticleService{
@@ -148,6 +149,70 @@ export class ArticleService{
                 "articlePrices"
             ]
         });
+    }
+
+    async search (data: ArticleSearchDto): Promise<Article[]>{
+        const builder = await this.article.createQueryBuilder("article");
+        builder.innerJoin("article.articlePrices", "ap");
+        builder.leftJoin("article.articleFeatures", "af");
+
+        builder.where('article.categoryId = :categoryId', {categoryId: data.categoryId});
+        
+        if(data.keywords && data.keywords.length > 0){
+            builder.andWhere('article.name LIKE :kw OR article.excerpt LIKE :kw OR article.description LIKE :kw', {kw: '%' + data.keywords.trim() + '%'});
+        }
+
+        if(data.priceMin && typeof data.priceMin === 'number'){
+            builder.andWhere('ap.price >= :min', {min: data.priceMin});
+        }
+
+        if(typeof data.priceMax === 'number'){
+            builder.andWhere('ap.price >= :max', {max: data.priceMax});
+        }
+
+        if(data.features && data.features.length > 0){
+            for (const feature of data.features){
+                builder.andWhere('af.featureId = :fId AND af.value IN (:fVals)', 
+                {
+                    fId: feature.featureId,
+                    fVals: feature.values
+                });
+            }
+        }
+
+        let orderBy = 'article.name';
+        let orderDirection: 'ASC' | 'DESC' = 'ASC';
+
+        if(data.orderBy && data.orderBy){
+            orderBy = data.orderBy;
+            if(orderBy === 'price'){
+                orderBy = 'ap.price'
+            }
+            if(orderBy === 'name'){
+                orderBy = 'article.name'
+            }
+        }
+
+        if(data.orderDirection && data.orderDirection){
+            orderDirection = data.orderDirection;
+        }
+
+        builder.orderBy(orderBy, orderDirection);
+
+        let page = 0;
+        if(data.page && typeof data.page === 'number'){
+            page = data.page;
+        }
+
+        let perPage: 5 | 10 | 25 | 50 | 75 = 25;
+        if (data.itemsPerPage && typeof data.itemsPerPage === 'number'){
+            perPage = data.itemsPerPage;
+        }
+        builder.skip(page * perPage);
+        builder.take(perPage);
+
+        let items = await builder.getMany();
+        return items;
     }
 
 }
