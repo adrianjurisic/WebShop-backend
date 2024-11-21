@@ -7,7 +7,7 @@ import { Article } from "src/entities/article.entity";
 import { AddArticleDto } from "src/dtos/article/add.article.dto";
 import { EditArticleDto } from "src/dtos/article/edit.article.dto";
 import { ApiResponse } from "src/misc/api.response.class";
-import { Repository } from "typeorm";
+import { Any, In, Repository } from "typeorm";
 import { ArticleSearchDto } from "src/dtos/article/article.search.dto";
 
 @Injectable()
@@ -146,28 +146,34 @@ export class ArticleService{
                 "category", 
                 "articleFeatures", 
                 "features", 
-                "articlePrices"
+                "articlePrices",
+                "photos"
             ]
         });
     }
 
-    async search (data: ArticleSearchDto): Promise<Article[]>{
+    async pretraga (data: ArticleSearchDto): Promise<Article[]>{
         const builder = await this.article.createQueryBuilder("article");
-        builder.innerJoin("article.articlePrices", "ap");
-        builder.leftJoin("article.articleFeatures", "af");
+        builder.innerJoinAndSelect(
+            "article.articlePrices", 
+            "ap", 
+            "ap.createdAt = (SELECT MAX(ap.created_at) from article_price AS ap WHERE ap.article_id = article.article_id)");
+        builder.leftJoinAndSelect("article.articleFeatures", "af");
 
         builder.where('article.categoryId = :categoryId', {categoryId: data.categoryId});
         
-        if(data.keywords && data.keywords.length > 0){
-            builder.andWhere('article.name LIKE :kw OR article.excerpt LIKE :kw OR article.description LIKE :kw', {kw: '%' + data.keywords.trim() + '%'});
+        if(data.keywords){
+            if(data.keywords.length > 0){
+                builder.andWhere('(article.name LIKE :kw OR article.excerpt LIKE :kw OR article.description LIKE :kw)', {kw: '%' + data.keywords.trim() + '%'});
+            }
         }
 
         if(data.priceMin && typeof data.priceMin === 'number'){
             builder.andWhere('ap.price >= :min', {min: data.priceMin});
         }
 
-        if(typeof data.priceMax === 'number'){
-            builder.andWhere('ap.price >= :max', {max: data.priceMax});
+        if(data.priceMax && typeof data.priceMax === 'number'){
+            builder.andWhere('ap.price <= :max', {max: data.priceMax});
         }
 
         if(data.features && data.features.length > 0){
@@ -183,7 +189,7 @@ export class ArticleService{
         let orderBy = 'article.name';
         let orderDirection: 'ASC' | 'DESC' = 'ASC';
 
-        if(data.orderBy && data.orderBy){
+        if(data.orderBy && (data.orderBy === 'name' || data.orderBy === 'price')){
             orderBy = data.orderBy;
             if(orderBy === 'price'){
                 orderBy = 'ap.price'
@@ -211,8 +217,18 @@ export class ArticleService{
         builder.skip(page * perPage);
         builder.take(perPage);
 
-        let items = await builder.getMany();
-        return items;
+        let articleIds = await (await builder.getMany()).map(article => article.articleId);
+
+        return await this.article.find({
+            where: {articleId: In(articleIds)},
+            relations: [
+                "category", 
+                "articleFeatures", 
+                "features", 
+                "articlePrices",
+                "photos"
+            ]
+        });
     }
 
 }

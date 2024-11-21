@@ -56,6 +56,14 @@ export class ArticleController{
         return this.articleService.editFullArticle(articleId, data);
     }
 
+    // http://localhost:3000/api/article/search/
+    @Post('search')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator', 'user')
+    async pretraga (@Body() data: ArticleSearchDto): Promise<Article[]>{
+        return await this.articleService.pretraga(data);
+    }
+
     // POST http://localhost.3000/api/article/4/
     @Post(':id')
     @UseGuards(RoleCheckedGuard)
@@ -198,11 +206,5 @@ export class ArticleController{
         return new ApiResponse('ok', 200, 'One photo deleted!');
     }
 
-    @Post('search')
-    @UseGuards(RoleCheckedGuard)
-    @AllowToRoles('administrator', 'user')
-    async search (@Body() data: ArticleSearchDto): Promise<Article[]>{
-        return await this.articleService.search(data);
-    }
 
 }
