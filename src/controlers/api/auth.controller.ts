@@ -35,7 +35,7 @@ export class AuthController{
         passwordHash.update(data.password);
         const passwordHashString = passwordHash.digest('hex').toUpperCase();
 
-        if(administrator.passwordHash != data.password){
+        if(administrator.passwordHash !== passwordHashString){
             return new Promise(resolve => resolve (new ApiResponse("error", -3002)));
         }
 
@@ -56,7 +56,9 @@ export class AuthController{
         const responseObject = new LoginInfoDto(
             administrator.administratorId,
             administrator.username,
-            token
+            token,
+            "",
+            ""
         );
 
         return new Promise(resolve => resolve(responseObject));
@@ -105,7 +107,9 @@ export class AuthController{
         const responseObject = new LoginInfoDto(
             user.userId,
             user.email,
-            token
+            token,
+            "",
+            "",
         );
         return new Promise(resolve => resolve(responseObject));
     }
