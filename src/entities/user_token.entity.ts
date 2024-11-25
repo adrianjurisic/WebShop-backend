@@ -38,7 +38,6 @@ export class UserToken {
   @Column({
     type: "tinyint",
     name: "is_valid",
-    length: 1,
     default: 1
   })
   @Validator.IsNotEmpty()

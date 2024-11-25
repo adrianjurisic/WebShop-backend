@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, HttpException, HttpStatus, Post, Put, Req } from "@nestjs/common";
 import { LoginAdministratorDto } from "src/dtos/administrator/login.administrator.dto";
 import { LoginInfoDto } from "src/dtos/auth/login.info.dto";
 import { ApiResponse } from "src/misc/api.response.class";
@@ -11,6 +11,9 @@ import { jwtSecret } from "config/jwt.secret";
 import { UserRegistrationDto } from "src/dtos/user/user.registration.dto";
 import { UserService } from "src/services/user/user.service";
 import { LoginUserDto } from "src/dtos/user/login.user.dto";
+import { JwtRefreshDataDto } from "src/dtos/auth/jwt.refresh.dto";
+import { time } from "console";
+import { UserRefreshTokenDto } from "src/dtos/auth/user.refresh.token.dto";
 
 @Controller('auth')
 export class AuthController{
@@ -43,10 +46,7 @@ export class AuthController{
         jwtData.role = "administrator";
         jwtData.id = administrator.administratorId;
         jwtData.identity = administrator.username;
-        let sada = new Date();
-        sada.setDate(sada.getDate() + 14);
-        const istekTimeStamp = sada.getTime() / 1000;
-        jwtData.exp = istekTimeStamp;
+        jwtData.exp = this.getDatePlus(60 * 5);
 
         jwtData.ip = req.ip.toString();
         jwtData.ua = req.headers['user-agent'];
@@ -94,23 +94,107 @@ export class AuthController{
         jwtData.role = "user";
         jwtData.id = user.userId;
         jwtData.identity = user.email;
-        let sada = new Date();
-        sada.setDate(sada.getDate() + 14);
-        const istekTimeStamp = sada.getTime() / 1000;
-        jwtData.exp = istekTimeStamp;
+        jwtData.exp = this.getDatePlus(60 * 5);
 
         jwtData.ip = req.ip.toString();
         jwtData.ua = req.headers['user-agent'];
 
         let token: string = jwt.sign(jwtData.toPlainObject(), jwtSecret);
 
+        const jwtRefershData = new JwtRefreshDataDto();
+        jwtRefershData.role = jwtData.role;
+        jwtRefershData.id = jwtData.id;
+        jwtRefershData.identity = jwtData.identity;
+        jwtRefershData.ip = jwtData.ip;
+        jwtRefershData.ua = jwtData.ua;
+        jwtRefershData.exp = this.getDatePlus(60 * 60 * 24 * 31);
+
+        let refreshToken: string = jwt.sign(jwtRefershData.toPlainObject(), jwtSecret);
+
         const responseObject = new LoginInfoDto(
             user.userId,
             user.email,
             token,
-            "",
-            "",
+            refreshToken,
+            this.getIsoDate(jwtRefershData.exp),
         );
+
+        await this.userService.addToken(user.userId, refreshToken, this.getDatabaseDateFormat(this.getIsoDate(jwtRefershData.exp)));
+
         return new Promise(resolve => resolve(responseObject));
+    }
+
+    // http://localhost:3000/auth/user/refresh
+    @Post('user/refresh')
+    async userTokenRefresh(@Req() req: Request, @Body() data: UserRefreshTokenDto): Promise <LoginInfoDto | ApiResponse>{
+        const userToken = await this.userService.getUserToken(data.token);
+
+        if(!userToken){
+            return new ApiResponse("error", -10002, "No refresh token!");
+        }
+
+        if(userToken.isValid === 0){
+            return new ApiResponse("error", -10003, "Token is not valid!");
+        }
+
+        const sada = new Date();
+        const datumIsteka = new Date(userToken.expiresAt);
+
+        if(datumIsteka.getTime() < sada.getTime()){
+            return new ApiResponse("error", -10004, "Token is no longer valid!");
+        }
+
+        let jwtRefreshData: JwtRefreshDataDto;
+        try{
+            jwtRefreshData = jwt.verify(data.token, jwtSecret);
+        } catch(e){
+            throw new HttpException('Bad token found', HttpStatus.UNAUTHORIZED);
+        }
+
+        if(!jwtRefreshData){
+            throw new HttpException('Bad token found', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (jwtRefreshData.ip !== req.ip.toString()){
+            throw new HttpException('Bad token found', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (jwtRefreshData.ua !== req.headers["user-agent"]){
+            throw new HttpException('Bad token found', HttpStatus.UNAUTHORIZED);
+        }
+
+        const jwtData = new JwtDataDto();
+        jwtData.role = jwtRefreshData.role;
+        jwtData.id = jwtRefreshData.id;
+        jwtData.identity = jwtRefreshData.identity;
+        jwtData.exp = this.getDatePlus(60 * 5);
+        jwtData.ip = jwtRefreshData.ip;
+        jwtData.ua = jwtRefreshData.ua;
+
+        let token: string = jwt.sign(jwtData.toPlainObject(), jwtSecret);
+
+        const responseObject = new LoginInfoDto(
+            jwtData.id,
+            jwtData.identity,
+            token,
+            data.token,
+            this.getIsoDate(jwtRefreshData.exp),
+        );
+
+        return responseObject;
+    }
+
+    private getDatePlus (numberOfSeconds: number){
+        return new Date().getTime() / 1000 + numberOfSeconds;
+    }
+
+    private getIsoDate(timestamp: number){
+        const date = new Date();
+        date.setTime(timestamp * 1000);
+        return date.toISOString();
+    }
+
+    private getDatabaseDateFormat(isoFormat: string): string{
+        return isoFormat.substring(0,19).replace('T', ' ');
     }
 }
