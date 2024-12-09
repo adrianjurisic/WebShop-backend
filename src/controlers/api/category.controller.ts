@@ -18,7 +18,6 @@ export class CategoryController{
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator', 'user')
     async getAll(@Query() query: any): Promise<Category[]> {
-        console.log('Received query:', query); // Dodajte log za praćenje
         return this.categoryService.getAll(query);
     }
 
