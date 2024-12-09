@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { Crud } from "@nestjsx/crud";
 import { Category } from "src/entities/category.entity";
 import { AddCategoryDto } from "src/dtos/category/add.category.dto";
@@ -17,9 +17,11 @@ export class CategoryController{
     @Get()
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator', 'user')
-    getAll(): Promise<Category[]>{
-        return this.categoryService.getAll();
+    async getAll(@Query() query: any): Promise<Category[]> {
+        console.log('Received query:', query); // Dodajte log za praćenje
+        return this.categoryService.getAll(query);
     }
+
 
     @Get(':id')
     @UseGuards(RoleCheckedGuard)

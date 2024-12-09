@@ -16,9 +16,23 @@ export class CategoryService{
         private readonly category: Repository<Category> // !!! navesti u app.module.ts
     ){}
 
-    getAll(): Promise<Category[]>{
-        return this.category.find({relations:{categories: true, parentCategory: false, features: true, articles: true}});
+    async getAll(query: any): Promise<Category[]> {
+        const queryBuilder = this.category.createQueryBuilder('category');
+        if (query.filter) {
+            try {
+                const parsedFilter = JSON.parse(query.filter);
+    
+                if (parsedFilter.parentCategoryId === '$isnull') {
+                    queryBuilder.where('category.parent__category_id IS NULL');
+                }
+            } catch (error) {
+                console.error('Failed to parse filter:', error);
+            }
+        }
+        return queryBuilder.getMany();
     }
+    
+    
 
     async getById(categoryId: number): Promise<Category | ApiResponse>{
         let category: Category = await this.category.findOne({where: {categoryId}});
