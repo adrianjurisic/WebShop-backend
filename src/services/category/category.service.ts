@@ -31,22 +31,20 @@ export class CategoryService{
         }
         return queryBuilder.getMany();
     }
-    
-    
 
-    async getById(categoryId: number): Promise<Category | ApiResponse>{
-        let category: Category = await this.category.findOne({where: {categoryId}});
-
-        if(category === null){
-            return new Promise((resolve)=>{
-                resolve(new ApiResponse("error", -1002));
-            });
-        }
-        return this.category.findOne({
-            where: {categoryId},
-            relations: {parentCategory: true},
+    async getById(categoryId: number): Promise<Category | ApiResponse> {
+        const category = await this.category.findOne({
+            where: { categoryId },
+            relations: ['categories', 'parentCategory'], // Dodajemo 'categories' za subkategorije
         });
+    
+        if (!category) {
+            return new ApiResponse("error", -1002, "Category not found.");
+        }
+    
+        return category;
     }
+    
 
     add(data: AddCategoryDto): Promise<Category | ApiResponse>{
         let newCategory: Category = new Category();
