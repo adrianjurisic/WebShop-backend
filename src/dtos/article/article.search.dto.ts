@@ -13,7 +13,7 @@ export class ArticleSearchDto {
    
     @Validator.IsOptional()
     @Validator.IsString()
-    @Validator.Length(2, 128)
+    @Validator.Length(0, 128)
     keywords: string;
 
     @Validator.IsOptional()

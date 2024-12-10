@@ -60,7 +60,7 @@ export class ArticleController{
     @Post('search')
     @UseGuards(RoleCheckedGuard)
     @AllowToRoles('administrator', 'user')
-    async pretraga (@Body() data: ArticleSearchDto): Promise<Article[]>{
+    async pretraga (@Body() data: ArticleSearchDto): Promise<Article[] | ApiResponse>{
         return await this.articleService.pretraga(data);
     }
 
