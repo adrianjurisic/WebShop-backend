@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
 import { AddFeatureDto } from "src/dtos/feature/add.feature.dto";
+import DistinctFeatureValuesDto from "src/dtos/feature/distinct.feature.values.dto";
 import { EditFeatureDto } from "src/dtos/feature/edit.feature.dto";
 import { Feature } from "src/entities/feature.entity";
 import { AllowToRoles } from "src/misc/allow.to.roles.descriptor";
@@ -41,5 +42,12 @@ export class FeatureController{
     @AllowToRoles('administrator')
     edit(@Param('id') featureId: number, @Body() data: EditFeatureDto): Promise<Feature | ApiResponse>{
         return this.featureService.editById(featureId, data);
+    }
+
+    @Get('/values/:categoryId')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator', 'user')
+    async getDistinctValuesByCategoryId(@Param('categoryId') categoryId: number): Promise<DistinctFeatureValuesDto>{
+        return await this.featureService.getDistinctValuesByCategoryId(categoryId);
     }
 }

@@ -159,6 +159,8 @@ export class ArticleService{
             "ap", 
             "ap.createdAt = (SELECT MAX(ap.created_at) from article_price AS ap WHERE ap.article_id = article.article_id)");
         builder.leftJoinAndSelect("article.articleFeatures", "af");
+        builder.leftJoinAndSelect("article.features", "features");
+        builder.leftJoinAndSelect("article.photos", "photos");
 
         builder.where('article.categoryId = :categoryId', {categoryId: data.categoryId});
         
@@ -217,22 +219,14 @@ export class ArticleService{
         builder.skip(page * perPage);
         builder.take(perPage);
 
-        let articleIds = await (await builder.getMany()).map(article => article.articleId);
+        let articles = await builder.getMany();
 
-        if(articleIds.length === 0){
+        if(articles.length === 0){
             return new ApiResponse("ok", 0, "No articles found!")
         }
 
-        return await this.article.find({
-            where: {articleId: In(articleIds)},
-            relations: [
-                "category", 
-                "articleFeatures", 
-                "features", 
-                "articlePrices",
-                "photos"
-            ]
-        });
+        return articles;
+        
     }
 
 }
