@@ -59,6 +59,25 @@ export class OrderService {
         });
     }
 
+    async getAllByUserId(userId: number): Promise<Order[]> {
+        return await this.order.find({
+            where: {
+                cart: {
+                    userId: userId,
+                },
+            },
+            relations: [
+                "cart",
+                "cart.user",
+                "cart.cartArticles",
+                "cart.cartArticles.article",
+                "cart.cartArticles.article.category",
+                "cart.cartArticles.article.articlePrices",
+            ],
+        });
+    }
+    
+
     async changeStatus(orderId: number, newStatus: "rejected" | "accepted" | "shipped" | "pending"): Promise<Order | ApiResponse>{
         const order = await this.getById(orderId);
         if(!order){

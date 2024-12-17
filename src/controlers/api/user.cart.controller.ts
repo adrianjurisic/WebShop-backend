@@ -71,5 +71,13 @@ export class UserCartController{
         //await this.orderMailer.sendOrderMail(order);
 
         return order;
-    } 
+    }
+    
+    // http://localhost:3000/api/user/cart/orders/
+    @Get('orders')
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('user')
+    async getOrders(@Req() req: Request): Promise <Order[]>{
+        return await this.orderService.getAllByUserId(req.token.id);
+    }
 }
