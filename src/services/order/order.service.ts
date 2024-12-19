@@ -41,6 +41,9 @@ export class OrderService {
         newOrder.cartId = cartId;
         const savedOrder = await this.order.save(newOrder);
 
+        cart.createdAt = new Date();
+        await this.cart.save(cart);
+
         return await this.getById(savedOrder.orderId);
 
     }
