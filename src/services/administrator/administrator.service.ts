@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { error } from 'console';
 import { Administrator } from 'src/entities/administrator.entity';
-import { resolve } from 'path';
-import { identity } from 'rxjs';
 import { AddAdministratorDto } from 'src/dtos/administrator/add.administrator.dto';
 import { EditAdministratorDto } from 'src/dtos/administrator/edit.administrator.dto';
 import { ApiResponse } from 'src/misc/api.response.class';
 import { Repository } from 'typeorm';
+import { AdministratorToken } from 'src/entities/administrator_token.entity';
 
 
 @Injectable()
@@ -15,6 +13,9 @@ export class AdministratorService {
     constructor (
         @InjectRepository(Administrator) 
         private readonly administrator: Repository<Administrator>,
+
+        @InjectRepository(AdministratorToken)
+        private readonly administratorToken: Repository<AdministratorToken>,
     ){}
 
     getAll(): Promise<Administrator[]>{
@@ -78,4 +79,39 @@ export class AdministratorService {
         admin.passwordHash = passwordHashString;
         return this.administrator.save(admin);
     }
+
+    async addToken(administratorId: number, token: string, expiresAt: string){
+            const administratorToken = new AdministratorToken();
+            administratorToken.administratorId = administratorId;
+            administratorToken.token = token;
+            administratorToken.expiresAt = expiresAt;
+    
+            return await this.administratorToken.save(administratorToken);
+        }
+    
+        async getAdministratorToken(token: string): Promise<AdministratorToken>{
+            return await this.administratorToken.findOne({where: {token: token,}});
+        }
+    
+        async invalidateToken(token: string): Promise<AdministratorToken | ApiResponse>{
+            const administratorToken = await this.getAdministratorToken(token);
+    
+            if(!administratorToken){
+                return new ApiResponse("error", -10001, "No refresh token!");
+            }
+    
+            administratorToken.isValid = 0;
+    
+            await this.administratorToken.save(administratorToken);
+            return await this.getAdministratorToken(token);
+        }
+    
+        async invalidateAdministratorToken(administratorId: number): Promise<(AdministratorToken | ApiResponse)[]>{
+            const administratorTokens = await  this.administratorToken.find({where: {administratorId: administratorId}})
+            const results = [];
+            for(const administratorToken of administratorTokens){
+                results.push(this.invalidateToken(administratorToken.token));
+            }
+            return results;
+        }
 }
