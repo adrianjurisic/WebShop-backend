@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ChangeOrderStatusDto } from "src/dtos/order/change.order.status.dto";
 import { Cart } from "src/entities/cart.entity";
 import { Order } from "src/entities/order.entity";
 import { ApiResponse } from "src/misc/api.response.class";
@@ -79,7 +78,19 @@ export class OrderService {
             ],
         });
     }
-    
+
+    async getAllOrders(): Promise<Order[]> {
+        return await this.order.find({
+            relations: [
+                "cart",
+                "cart.user",
+                "cart.cartArticles",
+                "cart.cartArticles.article",
+                "cart.cartArticles.article.category",
+                "cart.cartArticles.article.articlePrices",
+            ],
+        });
+    }
 
     async changeStatus(orderId: number, newStatus: "rejected" | "accepted" | "shipped" | "pending"): Promise<Order | ApiResponse>{
         const order = await this.getById(orderId);

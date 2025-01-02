@@ -32,4 +32,12 @@ export class AdministratorOrderController{
     async changeStatus(@Param('id') id: number, @Body() data: ChangeOrderStatusDto){
         return await this.orderService.changeStatus(id, data.newStatus);
     }
+
+    @Get()
+    @UseGuards(RoleCheckedGuard)
+    @AllowToRoles('administrator')
+    async getAll(): Promise<Order[]> {
+        return await this.orderService.getAllOrders();
+    }
+
 }
