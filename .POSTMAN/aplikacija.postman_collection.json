@@ -678,12 +678,12 @@
 										{
 											"key": "photo",
 											"type": "file",
-											"src": "postman-cloud:///1ef9d0d6-d011-4d60-bfba-974e82b4fea0"
+											"src": "postman-cloud:///1efc3a7a-d103-4510-92dc-17104e52d6a3"
 										}
 									]
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/article/1/uploadPhoto",
+									"raw": "http://localhost:3000/api/article/8/uploadPhoto/",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -692,8 +692,9 @@
 									"path": [
 										"api",
 										"article",
-										"1",
-										"uploadPhoto"
+										"8",
+										"uploadPhoto",
+										""
 									]
 								}
 							},
@@ -789,6 +790,33 @@
 							"response": []
 						},
 						{
+							"name": "Get many articles",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/article/?filter=categoryId||$eq||5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"article",
+										""
+									],
+									"query": [
+										{
+											"key": "filter",
+											"value": "categoryId||$eq||5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Delete a photo",
 							"request": {
 								"method": "DELETE",
@@ -868,6 +896,95 @@
 										"api",
 										"article",
 										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search articles",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"categoryId\" : 3,\n    \"keywords\": \"Air\",\n    \"priceMin\": 1000,\n    \"priceMax\": 2000,\n    \"features\": [\n        {\n            \"featureId\": 5,\n            \"values\": \"Apple\"\n        }\n    ],\n    \"orderBy\": \"price\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/article/search/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"article",
+										"search",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get many categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/category/?filter={\"parentCategoryId\":\"$isnull\"}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"category",
+										""
+									],
+									"query": [
+										{
+											"key": "filter",
+											"value": "{\"parentCategoryId\":\"$isnull\"}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create full article",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/article/createFull/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"article",
+										"createFull",
 										""
 									]
 								}
@@ -1020,7 +1137,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"test@test.ba\",\n    \"password\": \"test123\"\n}",
+									"raw": "{\n    \"email\": \"test1234@test.ba\",\n    \"password\": \"test123\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1120,7 +1237,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"test@test.ba\",\n    \"password\": \"test123\",\n    \"forename\": \"Neko\",\n    \"surname\": \"Nekic\",\n    \"phoneNumber\": \"061/455-455\",\n    \"postalAddress\": \"Gradacacka 31, 71000 Sarajevo\"\n}",
+									"raw": "{\n    \"email\": \"test12345@test.ba\",\n    \"password\": \"test123\",\n    \"forename\": \"Nekola\",\n    \"surname\": \"Nekic\",\n    \"phoneNumber\": \"+38111300765000\",\n    \"postalAddress\": \"nova adresa 33, 71000 Sarajevo\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1138,6 +1255,37 @@
 										"auth",
 										"user",
 										"register",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RefreshUserToken",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImlkIjo2LCJpZGVudGl0eSI6InRlc3QxMjM0QHRlc3QuYmEiLCJleHAiOjE3MzUyMjc0NTYuMzUyLCJpcCI6Ijo6MSIsInVhIjoiUG9zdG1hblJ1bnRpbWUvNy40Mi4wIiwiaWF0IjoxNzMyNTQ5MDU2fQ.f25hjWrNm5zm6Ju0Q6W49H6sRCxnxOyQ7IaIDq5vtbc\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/auth/user/refresh/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"auth",
+										"user",
+										"refresh",
 										""
 									]
 								}
@@ -1215,64 +1363,7 @@
 									]
 								}
 							},
-							"response": [
-								{
-									"name": "Save single administrator",
-									"originalRequest": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://localhost:3000/api/administrator/1/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "3000",
-											"path": [
-												"api",
-												"administrator",
-												"1",
-												""
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "66"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"42-6MIJJmYG2KjVrll+5QjSAVZmIq0\""
-										},
-										{
-											"key": "Date",
-											"value": "Mon, 04 Nov 2024 16:58:06 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"administratorId\": 1,\n    \"username\": \"Adrian\",\n    \"passwordHash\": \"test123\"\n}"
-								}
-							]
+							"response": []
 						},
 						{
 							"name": "Add a new feature",
@@ -1346,6 +1437,254 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Get distinct values for feature",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/feature/values/3/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"feature",
+										"values",
+										"3",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Cart and Order",
+					"item": [
+						{
+							"name": "Get current cart details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/user/cart/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"user",
+										"cart",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add article to the current cart",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"articleId\": 1,\n    \"quantity\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/user/cart/addToCart/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"user",
+										"cart",
+										"addToCart",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change article quantity in cart",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"articleId\": 1,\n    \"quantity\": 0\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/user/cart/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"user",
+										"cart",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Make order for current cart",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/user/cart/makeOrder/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"user",
+										"cart",
+										"makeOrder",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImlkIjoxLCJpZGVudGl0eSI6InRlc3RAdGVzdC5iYSIsImV4cCI6MTczMzE0NzU2My42MTYsImlwIjoiOjoxIiwidWEiOiJQb3N0bWFuUnVudGltZS83LjQyLjAiLCJpYXQiOjE3MzE5Mzc5NjN9.BPU_O_4-x3MXkGcX6BsHhw8GKthYCqd5ujqb9TR4I5Y",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Order",
+					"item": [
+						{
+							"name": "Get order info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/order/7/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"order",
+										"7",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change order status",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"newStatus\": \"shipped\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/order/10/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"order",
+										"10",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
 						}
 					]
 				}
@@ -1355,7 +1694,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlkIjoyLCJpZGVudGl0eSI6InRlc3QiLCJleHAiOjE3MzI3Mjk4NDkuMTEzLCJpcCI6Ijo6MSIsInVhIjoiUG9zdG1hblJ1bnRpbWUvNy40Mi4wIiwiaWF0IjoxNzMxNTIwMjQ5fQ.v4DHZZOgV4XC2DZcC3ql_LYrC_lsxzJ-QRNWQwIEsVo",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlkIjoyLCJpZGVudGl0eSI6InRlc3QiLCJleHAiOjE3Mzc5MDkwODUuNDgsImlwIjoiOjoxIiwidWEiOiJQb3N0bWFuUnVudGltZS83LjQzLjAiLCJpYXQiOjE3MzUyMzA2ODV9.z2_b-9m75Q8GhdlvahDyEf8oGeSjls3IBh0qg9ayfZM",
 						"type": "string"
 					}
 				]
